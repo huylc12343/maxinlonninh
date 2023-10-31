@@ -4,17 +4,17 @@ from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
 from sklearn import tree
 
-df = pd.read_csv('ketthucmon\mushrooms.csv')
+df = pd.read_csv('ketthucmon\Iris.csv')
 
 le = preprocessing.LabelEncoder()
 df = df.apply(le.fit_transform)
 df = np.array(df)
 dt_train, dt_Test = train_test_split(df, test_size = 0.3, shuffle = True)
 
-x_train = dt_train [:,1:-1]
-y_train = dt_train [:,0]
-x_test = dt_Test [:,1:-1]
-y_test = dt_Test [:,0]
+x_train = dt_train [:,0:3]
+y_train = dt_train [:,4]
+x_test = dt_Test [:,0:3]
+y_test = dt_Test [:,4]
 
 id3 = tree.DecisionTreeClassifier(criterion='gini', max_depth=8,min_samples_split=54)
 id3.fit(x_train, y_train)
