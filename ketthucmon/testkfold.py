@@ -13,11 +13,10 @@ data = np.array(data)
 
 X = data[:, 0:3]  # Chọn cột 0, 1, và 2 làm features
 y = data[:, 4]    # Chọn cột 4 làm target
-
+precisions = []
 id3 = DecisionTreeClassifier(criterion='entropy', max_depth=8, min_samples_split=54)
 k = 5
 kf = KFold(n_splits=k, shuffle=True, random_state=None)
-precisions = []
 
 for train_index, validation_index in kf.split(X):
     X_train, x_test = X[train_index], X[validation_index]

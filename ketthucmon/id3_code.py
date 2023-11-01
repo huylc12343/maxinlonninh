@@ -3,12 +3,6 @@ import numpy as np
 from sklearn import preprocessing
 import pandas as pd 
 from sklearn.model_selection import train_test_split
-# import pandas as pd
-from sklearn.model_selection import KFold
-from sklearn.tree import DecisionTreeClassifier
-import numpy as np
-from sklearn.metrics import precision_score
-from sklearn import preprocessing
 
 def entropy(data):
     # Tính entropy của tập dữ liệu
@@ -117,32 +111,37 @@ def predict(tree, attributes, sample):
         return tree
 
 # Dữ liệu mẫu
-data = pd.read_csv('ketthucmon\Iris.csv')
+data = pd.read_csv('baocao_2\data_main.csv')
 
 # Đảm bảo thứ tự cột 'churn' đúng
-data = data[['SepalLengthCm','SepalWidthCm','PetalLengthCm','PetalWidthCm','Species']]
-attributes = ['SepalLengthCm','SepalWidthCm','PetalLengthCm','PetalWidthCm']
+data = data[['credit_score', 'country', 'gender', 'age', 'tenure', 'balance', 'products_number', 'credit_card', 'active_member', 'estimated_salary', 'churn']]
 
 le = preprocessing.LabelEncoder()
 data = data.apply(le.fit_transform)
 data = np.array(data)
+
+# Tách dữ liệu thành tập huấn luyện và tập kiểm tra
+dt_train, dt_Test = train_test_split(data, test_size = 0.3, shuffle = True)
+
+# print(df)
+X_train = dt_train[:,:10]
+y_train = dt_train[:,10]
+x_test = dt_Test[:,:10]
+y_test = dt_Test[:,10]
+
+# Danh sách tên thuộc tính
+attributes = ['credit_score', 'country', 'gender', 'age', 'tenure', 'balance', 'products_number', 'credit_card', 'active_member', 'estimated_salary']
+
 # Xây dựng cây quyết định
-X = data[:, 0:3]  # Chọn cột 0, 1, và 2 làm features
-y = data[:, 4]    # Chọn cột 4 làm target
+decision_tree = build_tree(np.column_stack((X_train, y_train)), attributes)
 
-decision_tree = build_tree(np.column_stack((X, y)), attributes)
-precisions = []
-k = 5
-kf = KFold(n_splits=k, shuffle=True, random_state=None)
+# Dự đoán cho các mẫu dữ liệu kiểm tra
+y_pred = [predict(decision_tree, attributes, sample) for sample in x_test]
 
-for train_index, validation_index in kf.split(X):
-    X_train, x_test = X[train_index], X[validation_index]
-    y_train, y_test = y[train_index], y[validation_index]
+c = 0
+for i in range(0, len(y_pred)):
+    if(y_test[i] == y_pred[i]):
+        c = c + 1
+print('ty le du doan dung: ', c/len(y_pred))
 
-
-    y_pred = [predict(decision_tree, attributes, sample) for sample in x_test]
-    precision = precision_score(y_test, y_pred, average='micro')
-    precisions.append(precision)
-
-avr_accuracy = sum(precisions) / k
-print("Độ chính xác trung bình:", avr_accuracy)
+print(y_pred)
